@@ -95,7 +95,14 @@ For major/critical: Include doctorSpecialty and urgency fields`;
     // Parse the JSON response from AI
     let analysisResult;
     try {
-      analysisResult = JSON.parse(aiResponse);
+      // Remove markdown code blocks if present
+      let cleanedResponse = aiResponse.trim();
+      if (cleanedResponse.startsWith('```json')) {
+        cleanedResponse = cleanedResponse.replace(/^```json\n/, '').replace(/\n```$/, '');
+      } else if (cleanedResponse.startsWith('```')) {
+        cleanedResponse = cleanedResponse.replace(/^```\n/, '').replace(/\n```$/, '');
+      }
+      analysisResult = JSON.parse(cleanedResponse);
     } catch (parseError) {
       console.error('Failed to parse AI response:', aiResponse);
       throw new Error('Invalid response format from AI');
