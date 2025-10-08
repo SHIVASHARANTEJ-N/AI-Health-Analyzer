@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Sparkles, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [file, setFile] = useState<File | null>(null);
   const [symptoms, setSymptoms] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [analysisData, setAnalysisData] = useState<any>(null);
   const { toast } = useToast();
 
   const handleAnalyze = async () => {
@@ -26,65 +28,39 @@ const Index = () => {
 
     setIsAnalyzing(true);
     
-    // Simulate AI analysis
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    setIsAnalyzing(false);
-    setShowResults(true);
-    
-    toast({
-      title: "Analysis Complete",
-      description: "Your medical report has been analyzed successfully",
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-symptoms', {
+        body: { symptoms: symptoms.trim() }
+      });
+
+      if (error) {
+        console.error('Analysis error:', error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error('No data received from analysis');
+      }
+
+      setAnalysisData(data);
+      setShowResults(true);
+      
+      toast({
+        title: "Analysis Complete",
+        description: "Your medical report has been analyzed successfully",
+      });
+    } catch (error) {
+      console.error('Error analyzing symptoms:', error);
+      toast({
+        title: "Analysis Failed",
+        description: error instanceof Error ? error.message : "Failed to analyze symptoms. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
-  // Mock data for demo
-  const mockResults = {
-    primaryDiagnosis: "Moderate Hypertension with Cardiovascular Risk Factors",
-    summary: "The analysis indicates elevated blood pressure readings consistent with Stage 2 hypertension. Additional findings suggest early signs of cardiovascular stress and metabolic concerns that require medical attention and lifestyle modifications.",
-    findings: [
-      {
-        condition: "Hypertension (Stage 2)",
-        severity: "major" as const,
-        description: "Blood pressure readings consistently above 140/90 mmHg, indicating moderate to severe hypertension. This increases risk of heart disease, stroke, and kidney damage.",
-        recommendation: "Immediate consultation with a cardiologist is strongly recommended. Blood pressure monitoring and medication may be necessary.",
-        doctorSpecialty: "Cardiologist",
-        urgency: "urgent" as const,
-      },
-      {
-        condition: "Elevated Cholesterol Levels",
-        severity: "moderate" as const,
-        description: "LDL cholesterol levels are above optimal range (130-159 mg/dL), contributing to cardiovascular risk.",
-        recommendation: "Dietary modifications and regular exercise recommended. Consider cholesterol-lowering medication if lifestyle changes are insufficient.",
-        remedies: [
-          "Increase fiber intake with oats, beans, and vegetables",
-          "Incorporate omega-3 rich foods like salmon and walnuts",
-          "Reduce saturated fats and trans fats in diet",
-          "Exercise at least 30 minutes daily, 5 days per week"
-        ],
-        medicines: [
-          "Atorvastatin 10-20mg (prescription required)",
-          "Omega-3 supplements (1000mg daily)",
-          "Plant sterols supplements"
-        ]
-      },
-      {
-        condition: "Vitamin D Deficiency",
-        severity: "minor" as const,
-        description: "Vitamin D levels below 20 ng/mL, which may affect bone health and immune function.",
-        recommendation: "Sun exposure and vitamin D supplementation recommended. Re-test in 3 months.",
-        remedies: [
-          "Get 15-20 minutes of sunlight daily",
-          "Consume vitamin D rich foods: fatty fish, egg yolks, fortified milk",
-          "Take daily walks in morning sunlight"
-        ],
-        medicines: [
-          "Vitamin D3 2000 IU daily supplement",
-          "Calcium with Vitamin D combination tablets"
-        ]
-      }
-    ]
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -204,12 +180,13 @@ const Index = () => {
                   setShowResults(false);
                   setFile(null);
                   setSymptoms("");
+                  setAnalysisData(null);
                 }}
               >
                 New Analysis
               </Button>
             </div>
-            <AnalysisResults {...mockResults} />
+            {analysisData && <AnalysisResults {...analysisData} />}
           </>
         )}
       </main>
