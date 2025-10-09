@@ -11,11 +11,11 @@ serve(async (req) => {
   }
 
   try {
-    const { symptoms } = await req.json();
+    const { symptoms, fileData, fileType } = await req.json();
     
-    if (!symptoms || typeof symptoms !== 'string') {
+    if ((!symptoms || typeof symptoms !== 'string' || symptoms.trim().length === 0) && !fileData) {
       return new Response(
-        JSON.stringify({ error: 'Symptoms text is required' }),
+        JSON.stringify({ error: 'Symptoms text or medical file is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -56,7 +56,42 @@ Severity guidelines:
 For minor/moderate: Include remedies and medicines arrays
 For major/critical: Include doctorSpecialty and urgency fields`;
 
-    console.log('Analyzing symptoms:', symptoms);
+    console.log('Analyzing symptoms:', symptoms, 'File type:', fileType);
+
+    // Prepare messages based on input type
+    const messages: any[] = [
+      { role: 'system', content: systemPrompt }
+    ];
+
+    if (fileData && fileType) {
+      if (fileType.startsWith('image/')) {
+        // For images, use vision capabilities
+        messages.push({
+          role: 'user',
+          content: [
+            { 
+              type: 'text', 
+              text: symptoms ? `Analyze this medical image. Additional context: ${symptoms}` : 'Please analyze this medical image and provide a health assessment.'
+            },
+            { 
+              type: 'image_url', 
+              image_url: { url: fileData }
+            }
+          ]
+        });
+      } else {
+        // For PDFs and other documents
+        messages.push({
+          role: 'user',
+          content: symptoms ? `Analyze this medical report. ${symptoms}` : 'Please analyze this medical document and provide a health assessment.'
+        });
+      }
+    } else {
+      messages.push({
+        role: 'user',
+        content: `Analyze these symptoms: ${symptoms}`
+      });
+    }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -66,10 +101,7 @@ For major/critical: Include doctorSpecialty and urgency fields`;
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Analyze these symptoms: ${symptoms}` }
-        ],
+        messages: messages,
       }),
     });
 

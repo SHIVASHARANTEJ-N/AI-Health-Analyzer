@@ -60,8 +60,26 @@ const Index = () => {
     setIsAnalyzing(true);
     
     try {
+      let fileData = null;
+      let fileType = null;
+
+      // Convert file to base64 if provided
+      if (file) {
+        fileData = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        fileType = file.type;
+      }
+
       const { data, error } = await supabase.functions.invoke('analyze-symptoms', {
-        body: { symptoms: symptoms.trim() }
+        body: { 
+          symptoms: symptoms.trim(),
+          fileData,
+          fileType
+        }
       });
 
       if (error) {
