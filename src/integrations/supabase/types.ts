@@ -14,36 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      analysis_history: {
-        Row: {
-          analysis_result: Json
-          created_at: string
-          file_name: string | null
-          file_type: string | null
-          id: string
-          symptoms: string | null
-          user_id: string
-        }
-        Insert: {
-          analysis_result: Json
-          created_at?: string
-          file_name?: string | null
-          file_type?: string | null
-          id?: string
-          symptoms?: string | null
-          user_id: string
-        }
-        Update: {
-          analysis_result?: Json
-          created_at?: string
-          file_name?: string | null
-          file_type?: string | null
-          id?: string
-          symptoms?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
