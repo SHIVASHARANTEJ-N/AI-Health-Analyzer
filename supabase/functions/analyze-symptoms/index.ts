@@ -1,17 +1,39 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { symptoms, fileData, fileType } = await req.json();
+    // Get the authorization header
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authorization required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get user from token
+    const tokenResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/auth/v1/user`, {
+      headers: { Authorization: authHeader },
+    });
+
+    if (!tokenResponse.ok) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authorization' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const user = await tokenResponse.json();
+    const userId = user.id;
+
+    const { symptoms, fileData, fileType, fileName } = await req.json();
     
     if ((!symptoms || typeof symptoms !== 'string' || symptoms.trim().length === 0) && !fileData) {
       return new Response(
@@ -138,6 +160,35 @@ For major/critical: Include doctorSpecialty and urgency fields`;
     } catch (parseError) {
       console.error('Failed to parse AI response:', aiResponse);
       throw new Error('Invalid response format from AI');
+    }
+
+    console.log('Final analysis result:', analysisResult);
+    
+    // Save to database using REST API
+    const dbResponse = await fetch(
+      `${Deno.env.get('SUPABASE_URL')}/rest/v1/analysis_history`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': authHeader,
+          'apikey': Deno.env.get('SUPABASE_ANON_KEY') || '',
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          symptoms: symptoms || null,
+          file_name: fileName || null,
+          file_type: fileType || null,
+          analysis_result: analysisResult,
+        }),
+      }
+    );
+
+    if (!dbResponse.ok) {
+      const dbError = await dbResponse.text();
+      console.error('Error saving to database:', dbError);
+      // Continue anyway, don't fail the request
     }
 
     return new Response(
