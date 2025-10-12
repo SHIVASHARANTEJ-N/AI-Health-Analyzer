@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { FileUpload } from "@/components/FileUpload";
 import { SymptomInput } from "@/components/SymptomInput";
 import { AnalysisResults } from "@/components/AnalysisResults";
+import { AnalysisHistory } from "@/components/AnalysisHistory";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Sparkles, Shield, LogOut } from "lucide-react";
+import { Activity, Sparkles, Shield, LogOut, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -14,8 +15,10 @@ const Index = () => {
   const [symptoms, setSymptoms] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [userEmail, setUserEmail] = useState<string>("");
+  const [historyRefresh, setHistoryRefresh] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -78,7 +81,8 @@ const Index = () => {
         body: { 
           symptoms: symptoms.trim(),
           fileData,
-          fileType
+          fileType,
+          fileName: file?.name
         }
       });
 
@@ -93,6 +97,7 @@ const Index = () => {
 
       setAnalysisData(data);
       setShowResults(true);
+      setHistoryRefresh(prev => prev + 1);
       
       toast({
         title: "Analysis Complete",
@@ -127,6 +132,17 @@ const Index = () => {
                 <span>HIPAA Compliant</span>
               </div>
               <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {
+                    setShowHistory(!showHistory);
+                    setShowResults(false);
+                  }}
+                >
+                  <History className="w-4 h-4 mr-2" />
+                  History
+                </Button>
                 <span className="text-sm text-muted-foreground">{userEmail}</span>
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4" />
@@ -138,7 +154,32 @@ const Index = () => {
       </header>
 
       <main className="container mx-auto px-4 py-12 max-w-5xl">
-        {!showResults ? (
+        {showHistory ? (
+          <>
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-foreground mb-2">Analysis History</h2>
+                <p className="text-muted-foreground">
+                  Review your past medical analyses
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setShowHistory(false)}
+              >
+                Back to Analysis
+              </Button>
+            </div>
+            <AnalysisHistory 
+              onSelectAnalysis={(data) => {
+                setAnalysisData(data);
+                setShowResults(true);
+                setShowHistory(false);
+              }}
+              refreshTrigger={historyRefresh}
+            />
+          </>
+        ) : !showResults ? (
           <>
             {/* Hero Section */}
             <div className="text-center mb-12">

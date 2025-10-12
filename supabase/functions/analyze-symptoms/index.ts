@@ -11,7 +11,16 @@ serve(async (req) => {
   }
 
   try {
-    const { symptoms, fileData, fileType } = await req.json();
+    const { symptoms, fileData, fileType, fileName } = await req.json();
+    
+    // Get authorization header
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     if ((!symptoms || typeof symptoms !== 'string' || symptoms.trim().length === 0) && !fileData) {
       return new Response(
@@ -138,6 +147,35 @@ For major/critical: Include doctorSpecialty and urgency fields`;
     } catch (parseError) {
       console.error('Failed to parse AI response:', aiResponse);
       throw new Error('Invalid response format from AI');
+    }
+
+    // Save to history
+    try {
+      const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+      const token = authHeader.replace('Bearer ', '');
+      
+      const saveResponse = await fetch(`${SUPABASE_URL}/rest/v1/analysis_history`, {
+        method: 'POST',
+        headers: {
+          'Authorization': authHeader,
+          'apikey': token,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          symptoms: symptoms || null,
+          file_name: fileName || null,
+          file_type: fileType || null,
+          analysis_result: analysisResult
+        })
+      });
+
+      if (!saveResponse.ok) {
+        console.error('Failed to save to history:', await saveResponse.text());
+      }
+    } catch (saveError) {
+      console.error('Error saving to history:', saveError);
+      // Don't fail the request if history save fails
     }
 
     return new Response(
