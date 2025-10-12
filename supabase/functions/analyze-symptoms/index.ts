@@ -152,13 +152,18 @@ For major/critical: Include doctorSpecialty and urgency fields`;
     // Save to history
     try {
       const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-      const token = authHeader.replace('Bearer ', '');
+      const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
+      
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.error('Missing Supabase configuration for history save');
+        throw new Error('Supabase configuration not available');
+      }
       
       const saveResponse = await fetch(`${SUPABASE_URL}/rest/v1/analysis_history`, {
         method: 'POST',
         headers: {
           'Authorization': authHeader,
-          'apikey': token,
+          'apikey': SUPABASE_ANON_KEY,
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal'
         },
