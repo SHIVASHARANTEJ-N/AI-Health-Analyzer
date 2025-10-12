@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -149,34 +150,31 @@ For major/critical: Include doctorSpecialty and urgency fields`;
       throw new Error('Invalid response format from AI');
     }
 
-    // Save to history
+    // Save to history using Supabase client
     try {
-      const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-      const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
-      
-      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-        console.error('Missing Supabase configuration for history save');
-        throw new Error('Supabase configuration not available');
-      }
-      
-      const saveResponse = await fetch(`${SUPABASE_URL}/rest/v1/analysis_history`, {
-        method: 'POST',
-        headers: {
-          'Authorization': authHeader,
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({
+      const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        {
+          global: {
+            headers: { Authorization: authHeader },
+          },
+        }
+      );
+
+      const { error: saveError } = await supabaseClient
+        .from('analysis_history')
+        .insert({
           symptoms: symptoms || null,
           file_name: fileName || null,
           file_type: fileType || null,
           analysis_result: analysisResult
-        })
-      });
+        });
 
-      if (!saveResponse.ok) {
-        console.error('Failed to save to history:', await saveResponse.text());
+      if (saveError) {
+        console.error('Failed to save to history:', saveError);
+      } else {
+        console.log('Analysis saved to history successfully');
       }
     } catch (saveError) {
       console.error('Error saving to history:', saveError);
