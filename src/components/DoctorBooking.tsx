@@ -59,6 +59,34 @@ const DOCTORS_DATA = {
   ],
 };
 
+const HOSPITALS_DATA = {
+  "Cardiologist": [
+    { name: "Apollo Heart Institute", location: "New Delhi" },
+    { name: "Fortis Escorts Heart Institute", location: "New Delhi" },
+    { name: "Narayana Heart Centre", location: "Bangalore" },
+  ],
+  "Neurologist": [
+    { name: "NIMHANS", location: "Bangalore" },
+    { name: "Fortis Memorial Research Institute", location: "Gurgaon" },
+    { name: "Global Hospital", location: "Mumbai" },
+  ],
+  "Dermatologist": [
+    { name: "Kaya Skin Clinic", location: "Multiple Locations" },
+    { name: "Apollo Hospital - Dermatology", location: "Chennai" },
+    { name: "Fortis Hospital", location: "Mumbai" },
+  ],
+  "Orthopedic": [
+    { name: "Indian Spinal Injuries Centre", location: "New Delhi" },
+    { name: "Fortis Hospital - Orthopedics", location: "Mumbai" },
+    { name: "Apollo Hospital - Orthopedics", location: "Hyderabad" },
+  ],
+  "General Physician": [
+    { name: "Max Hospital", location: "New Delhi" },
+    { name: "Apollo Hospital", location: "Chennai" },
+    { name: "Fortis Hospital", location: "Bangalore" },
+  ],
+};
+
 export const DoctorBooking = ({ finding, onBookingComplete }: DoctorBookingProps) => {
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [hospitalName, setHospitalName] = useState("");
@@ -68,8 +96,9 @@ export const DoctorBooking = ({ finding, onBookingComplete }: DoctorBookingProps
   const [isBooking, setIsBooking] = useState(false);
   const { toast } = useToast();
 
-  const doctors = DOCTORS_DATA[(finding.doctorSpecialty || "General Physician") as keyof typeof DOCTORS_DATA] || 
-                  DOCTORS_DATA["General Physician"];
+  const specialty = (finding.doctorSpecialty || "General Physician") as keyof typeof DOCTORS_DATA;
+  const doctors = DOCTORS_DATA[specialty] || DOCTORS_DATA["General Physician"];
+  const hospitals = HOSPITALS_DATA[specialty] || HOSPITALS_DATA["General Physician"];
 
   const handleBooking = async () => {
     if (!selectedDoctor || !hospitalName || !location || !appointmentDate || !appointmentTime) {
@@ -153,23 +182,33 @@ export const DoctorBooking = ({ finding, onBookingComplete }: DoctorBookingProps
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="hospital">Hospital Name</Label>
-          <Input
-            id="hospital"
-            value={hospitalName}
-            onChange={(e) => setHospitalName(e.target.value)}
-            placeholder="Enter hospital name"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="location">Location</Label>
-          <Input
-            id="location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="Enter location/city"
-          />
+          <Label htmlFor="hospital">Select Hospital</Label>
+          <Select 
+            value={hospitalName} 
+            onValueChange={(value) => {
+              setHospitalName(value);
+              const selectedHospital = hospitals.find(h => h.name === value);
+              if (selectedHospital) {
+                setLocation(selectedHospital.location);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Choose a hospital" />
+            </SelectTrigger>
+            <SelectContent>
+              {hospitals.map((hospital) => (
+                <SelectItem key={hospital.name} value={hospital.name}>
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">{hospital.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {hospital.location}
+                    </span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
