@@ -152,6 +152,11 @@ For major/critical: Include doctorSpecialty and urgency fields`;
 
     // Save to history using Supabase client
     try {
+      // Decode JWT to get user ID
+      const token = authHeader.replace('Bearer ', '');
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.sub;
+
       const supabaseClient = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
         Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -165,6 +170,7 @@ For major/critical: Include doctorSpecialty and urgency fields`;
       const { error: saveError } = await supabaseClient
         .from('analysis_history')
         .insert({
+          user_id: userId,
           symptoms: symptoms || null,
           file_name: fileName || null,
           file_type: fileType || null,
