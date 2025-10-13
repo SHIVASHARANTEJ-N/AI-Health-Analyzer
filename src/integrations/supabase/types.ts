@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analysis_history: {
+        Row: {
+          analysis_result: Json
+          created_at: string
+          file_name: string | null
+          file_type: string | null
+          id: string
+          symptoms: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis_result: Json
+          created_at?: string
+          file_name?: string | null
+          file_type?: string | null
+          id?: string
+          symptoms?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json
+          created_at?: string
+          file_name?: string | null
+          file_type?: string | null
+          id?: string
+          symptoms?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      appointments: {
+        Row: {
+          appointment_date: string
+          created_at: string
+          doctor_experience: string
+          doctor_name: string
+          doctor_specialty: string
+          hospital_name: string
+          id: string
+          location: string
+          related_condition: string
+          status: string
+          updated_at: string
+          urgency: string
+          user_id: string
+        }
+        Insert: {
+          appointment_date: string
+          created_at?: string
+          doctor_experience: string
+          doctor_name: string
+          doctor_specialty: string
+          hospital_name: string
+          id?: string
+          location: string
+          related_condition: string
+          status?: string
+          updated_at?: string
+          urgency: string
+          user_id: string
+        }
+        Update: {
+          appointment_date?: string
+          created_at?: string
+          doctor_experience?: string
+          doctor_name?: string
+          doctor_specialty?: string
+          hospital_name?: string
+          id?: string
+          location?: string
+          related_condition?: string
+          status?: string
+          updated_at?: string
+          urgency?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

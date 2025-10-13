@@ -2,11 +2,8 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { AlertTriangle, CheckCircle, AlertCircle, XCircle, Pill, Stethoscope, Calendar } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { DoctorBooking } from "./DoctorBooking";
 
 interface Finding {
   condition: string;
@@ -23,42 +20,9 @@ interface AnalysisResultsProps {
   primaryDiagnosis: string;
   findings: Finding[];
   summary: string;
+  onBookingComplete?: () => void;
 }
 
-const HOSPITALS = [
-  { id: "1", name: "City General Hospital", location: "Downtown" },
-  { id: "2", name: "St. Mary's Medical Center", location: "Northside" },
-  { id: "3", name: "Memorial Healthcare", location: "Eastside" },
-  { id: "4", name: "University Medical Center", location: "Westend" },
-  { id: "5", name: "Regional Hospital", location: "Southside" },
-];
-
-const DOCTORS_BY_SPECIALTY: Record<string, Array<{ id: string; name: string; hospital: string }>> = {
-  Cardiologist: [
-    { id: "1", name: "Dr. Sarah Johnson", hospital: "City General Hospital" },
-    { id: "2", name: "Dr. Michael Chen", hospital: "St. Mary's Medical Center" },
-    { id: "3", name: "Dr. Emily Rodriguez", hospital: "Memorial Healthcare" },
-  ],
-  Neurologist: [
-    { id: "4", name: "Dr. James Williams", hospital: "University Medical Center" },
-    { id: "5", name: "Dr. Lisa Anderson", hospital: "Regional Hospital" },
-    { id: "6", name: "Dr. Robert Taylor", hospital: "City General Hospital" },
-  ],
-  Oncologist: [
-    { id: "7", name: "Dr. Maria Garcia", hospital: "St. Mary's Medical Center" },
-    { id: "8", name: "Dr. David Kim", hospital: "Memorial Healthcare" },
-    { id: "9", name: "Dr. Jennifer Lee", hospital: "University Medical Center" },
-  ],
-  Orthopedist: [
-    { id: "10", name: "Dr. Christopher Brown", hospital: "Regional Hospital" },
-    { id: "11", name: "Dr. Amanda White", hospital: "City General Hospital" },
-  ],
-  "General Physician": [
-    { id: "12", name: "Dr. Thomas Martinez", hospital: "St. Mary's Medical Center" },
-    { id: "13", name: "Dr. Patricia Davis", hospital: "Memorial Healthcare" },
-    { id: "14", name: "Dr. Richard Wilson", hospital: "University Medical Center" },
-  ],
-};
 
 const getSeverityConfig = (severity: string) => {
   switch (severity) {
@@ -93,48 +57,30 @@ const getSeverityConfig = (severity: string) => {
   }
 };
 
-export const AnalysisResults = ({ primaryDiagnosis, findings, summary }: AnalysisResultsProps) => {
+export const AnalysisResults = ({ primaryDiagnosis, findings, summary, onBookingComplete }: AnalysisResultsProps) => {
   const hasCriticalFindings = findings.some(f => f.severity === "major" || f.severity === "critical");
-  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string>("");
-  const [selectedHospital, setSelectedHospital] = useState<string>("");
-  const [selectedDoctor, setSelectedDoctor] = useState<string>("");
-  const { toast } = useToast();
+  const [bookingFinding, setBookingFinding] = useState<Finding | null>(null);
 
-  const handleBookAppointment = (specialty: string) => {
-    setSelectedSpecialty(specialty);
-    setSelectedHospital("");
-    setSelectedDoctor("");
-    setBookingDialogOpen(true);
-  };
-
-  const confirmBooking = () => {
-    if (!selectedHospital || !selectedDoctor) {
-      toast({
-        title: "Incomplete Selection",
-        description: "Please select both hospital and doctor",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const hospital = HOSPITALS.find(h => h.id === selectedHospital);
-    const allDoctors = Object.values(DOCTORS_BY_SPECIALTY).flat();
-    const doctor = allDoctors.find(d => d.id === selectedDoctor);
-
-    toast({
-      title: "Appointment Booked Successfully",
-      description: `Appointment with ${doctor?.name} at ${hospital?.name} has been scheduled.`,
-    });
-
-    setBookingDialogOpen(false);
-  };
-
-  const availableDoctors = selectedHospital
-    ? (DOCTORS_BY_SPECIALTY[selectedSpecialty] || []).filter(
-        doc => doc.hospital === HOSPITALS.find(h => h.id === selectedHospital)?.name
-      )
-    : DOCTORS_BY_SPECIALTY[selectedSpecialty] || [];
+  if (bookingFinding) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <Button 
+          variant="ghost" 
+          onClick={() => setBookingFinding(null)}
+          className="mb-4"
+        >
+          ← Back to Results
+        </Button>
+        <DoctorBooking 
+          finding={bookingFinding} 
+          onBookingComplete={() => {
+            setBookingFinding(null);
+            onBookingComplete?.();
+          }}
+        />
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
@@ -250,7 +196,7 @@ export const AnalysisResults = ({ primaryDiagnosis, findings, summary }: Analysi
                       <Button 
                         className="w-full" 
                         variant="destructive"
-                        onClick={() => handleBookAppointment(finding.doctorSpecialty || "General Physician")}
+                        onClick={() => setBookingFinding(finding)}
                       >
                         <Calendar className="w-4 h-4 mr-2" />
                         Book Appointment Now
@@ -271,68 +217,6 @@ export const AnalysisResults = ({ primaryDiagnosis, findings, summary }: Analysi
           healthcare provider for accurate diagnosis and treatment.
         </p>
       </Card>
-
-      {/* Appointment Booking Dialog */}
-      <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Book Appointment</DialogTitle>
-            <DialogDescription>
-              Select a hospital and doctor for your {selectedSpecialty} consultation
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="hospital">Select Hospital</Label>
-              <Select value={selectedHospital} onValueChange={(value) => {
-                setSelectedHospital(value);
-                setSelectedDoctor("");
-              }}>
-                <SelectTrigger id="hospital">
-                  <SelectValue placeholder="Choose a hospital" />
-                </SelectTrigger>
-                <SelectContent>
-                  {HOSPITALS.map(hospital => (
-                    <SelectItem key={hospital.id} value={hospital.id}>
-                      {hospital.name} - {hospital.location}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="doctor">Select Doctor</Label>
-              <Select 
-                value={selectedDoctor} 
-                onValueChange={setSelectedDoctor}
-                disabled={!selectedHospital}
-              >
-                <SelectTrigger id="doctor">
-                  <SelectValue placeholder={selectedHospital ? "Choose a doctor" : "Select hospital first"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableDoctors.map(doctor => (
-                    <SelectItem key={doctor.id} value={doctor.id}>
-                      {doctor.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBookingDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={confirmBooking}>
-              Confirm Booking
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

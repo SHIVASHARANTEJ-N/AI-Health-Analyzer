@@ -4,9 +4,10 @@ import { FileUpload } from "@/components/FileUpload";
 import { SymptomInput } from "@/components/SymptomInput";
 import { AnalysisResults } from "@/components/AnalysisResults";
 import { AnalysisHistory } from "@/components/AnalysisHistory";
+import { AppointmentsList } from "@/components/AppointmentsList";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Sparkles, Shield, LogOut, History } from "lucide-react";
+import { Activity, Sparkles, Shield, LogOut, History, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,9 +17,11 @@ const Index = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showAppointments, setShowAppointments] = useState(false);
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [userEmail, setUserEmail] = useState<string>("");
   const [historyRefresh, setHistoryRefresh] = useState(0);
+  const [appointmentsRefresh, setAppointmentsRefresh] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -138,10 +141,23 @@ const Index = () => {
                   onClick={() => {
                     setShowHistory(!showHistory);
                     setShowResults(false);
+                    setShowAppointments(false);
                   }}
                 >
                   <History className="w-4 h-4 mr-2" />
                   History
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {
+                    setShowAppointments(!showAppointments);
+                    setShowResults(false);
+                    setShowHistory(false);
+                  }}
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Appointments
                 </Button>
                 <span className="text-sm text-muted-foreground">{userEmail}</span>
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>
@@ -154,7 +170,25 @@ const Index = () => {
       </header>
 
       <main className="container mx-auto px-4 py-12 max-w-5xl">
-        {showHistory ? (
+        {showAppointments ? (
+          <>
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-foreground mb-2">My Appointments</h2>
+                <p className="text-muted-foreground">
+                  View and manage your scheduled appointments
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setShowAppointments(false)}
+              >
+                Back to Analysis
+              </Button>
+            </div>
+            <AppointmentsList refreshTrigger={appointmentsRefresh} />
+          </>
+        ) : showHistory ? (
           <>
             <div className="mb-8 flex items-center justify-between">
               <div>
@@ -284,7 +318,18 @@ const Index = () => {
                 New Analysis
               </Button>
             </div>
-            {analysisData && <AnalysisResults {...analysisData} />}
+            {analysisData && (
+              <AnalysisResults 
+                {...analysisData} 
+                onBookingComplete={() => {
+                  setAppointmentsRefresh(prev => prev + 1);
+                  toast({
+                    title: "Success",
+                    description: "View your appointment in the Appointments section",
+                  });
+                }}
+              />
+            )}
           </>
         )}
       </main>
