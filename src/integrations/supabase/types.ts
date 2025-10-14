@@ -52,6 +52,7 @@ export type Database = {
           doctor_name: string
           doctor_specialty: string
           hospital_name: string
+          hospital_phone: string
           id: string
           location: string
           related_condition: string
@@ -67,6 +68,7 @@ export type Database = {
           doctor_name: string
           doctor_specialty: string
           hospital_name: string
+          hospital_phone?: string
           id?: string
           location: string
           related_condition: string
@@ -82,6 +84,7 @@ export type Database = {
           doctor_name?: string
           doctor_specialty?: string
           hospital_name?: string
+          hospital_phone?: string
           id?: string
           location?: string
           related_condition?: string

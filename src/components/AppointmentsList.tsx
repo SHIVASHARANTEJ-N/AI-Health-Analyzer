@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Calendar, Clock, MapPin, Stethoscope, User, Trash2, Award } from "lucide-react";
+import { Calendar, Clock, MapPin, Stethoscope, User, Trash2, Award, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
@@ -149,6 +149,18 @@ export const AppointmentsList = ({ refreshTrigger }: AppointmentsListProps) => {
                       {appointment.hospital_name}, {appointment.location}
                     </span>
                   </div>
+
+                  {appointment.hospital_phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-primary" />
+                      <a 
+                        href={`tel:${appointment.hospital_phone}`} 
+                        className="text-sm text-primary hover:underline"
+                      >
+                        {appointment.hospital_phone}
+                      </a>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground" />
