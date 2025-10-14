@@ -33,64 +33,34 @@ interface DoctorBookingProps {
 
 const DOCTORS_DATA = {
   "Cardiologist": [
-    { name: "Dr. Sarah Johnson", experience: "15 years experience, MBBS, MD Cardiology" },
-    { name: "Dr. Michael Chen", experience: "12 years experience, MBBS, DM Cardiology" },
-    { name: "Dr. Priya Sharma", experience: "10 years experience, MBBS, DNB Cardiology" },
+    { name: "Dr. Sarah Johnson", experience: "15 years experience, MBBS, MD Cardiology", hospital: "Apollo Heart Institute", location: "New Delhi" },
+    { name: "Dr. Michael Chen", experience: "12 years experience, MBBS, DM Cardiology", hospital: "Fortis Escorts Heart Institute", location: "New Delhi" },
+    { name: "Dr. Priya Sharma", experience: "10 years experience, MBBS, DNB Cardiology", hospital: "Narayana Heart Centre", location: "Bangalore" },
   ],
   "Neurologist": [
-    { name: "Dr. James Wilson", experience: "18 years experience, MBBS, DM Neurology" },
-    { name: "Dr. Emily Brown", experience: "14 years experience, MBBS, MD Neurology" },
-    { name: "Dr. Raj Kumar", experience: "11 years experience, MBBS, DNB Neurology" },
+    { name: "Dr. James Wilson", experience: "18 years experience, MBBS, DM Neurology", hospital: "NIMHANS", location: "Bangalore" },
+    { name: "Dr. Emily Brown", experience: "14 years experience, MBBS, MD Neurology", hospital: "Fortis Memorial Research Institute", location: "Gurgaon" },
+    { name: "Dr. Raj Kumar", experience: "11 years experience, MBBS, DNB Neurology", hospital: "Global Hospital", location: "Mumbai" },
   ],
   "Dermatologist": [
-    { name: "Dr. Lisa Anderson", experience: "13 years experience, MBBS, MD Dermatology" },
-    { name: "Dr. David Lee", experience: "9 years experience, MBBS, DVD Dermatology" },
-    { name: "Dr. Aisha Patel", experience: "8 years experience, MBBS, DDV" },
+    { name: "Dr. Lisa Anderson", experience: "13 years experience, MBBS, MD Dermatology", hospital: "Kaya Skin Clinic", location: "Multiple Locations" },
+    { name: "Dr. David Lee", experience: "9 years experience, MBBS, DVD Dermatology", hospital: "Apollo Hospital - Dermatology", location: "Chennai" },
+    { name: "Dr. Aisha Patel", experience: "8 years experience, MBBS, DDV", hospital: "Fortis Hospital", location: "Mumbai" },
   ],
   "Orthopedic": [
-    { name: "Dr. Robert Taylor", experience: "16 years experience, MBBS, MS Orthopedics" },
-    { name: "Dr. Maria Garcia", experience: "12 years experience, MBBS, DNB Orthopedics" },
-    { name: "Dr. Vikram Singh", experience: "10 years experience, MBBS, MS Orthopedics" },
+    { name: "Dr. Robert Taylor", experience: "16 years experience, MBBS, MS Orthopedics", hospital: "Indian Spinal Injuries Centre", location: "New Delhi" },
+    { name: "Dr. Maria Garcia", experience: "12 years experience, MBBS, DNB Orthopedics", hospital: "Fortis Hospital - Orthopedics", location: "Mumbai" },
+    { name: "Dr. Vikram Singh", experience: "10 years experience, MBBS, MS Orthopedics", hospital: "Apollo Hospital - Orthopedics", location: "Hyderabad" },
   ],
   "General Physician": [
-    { name: "Dr. John Smith", experience: "20 years experience, MBBS, MD General Medicine" },
-    { name: "Dr. Amanda White", experience: "15 years experience, MBBS, MD Internal Medicine" },
-    { name: "Dr. Suresh Reddy", experience: "12 years experience, MBBS, MD" },
-  ],
-};
-
-const HOSPITALS_DATA = {
-  "Cardiologist": [
-    { name: "Apollo Heart Institute", location: "New Delhi" },
-    { name: "Fortis Escorts Heart Institute", location: "New Delhi" },
-    { name: "Narayana Heart Centre", location: "Bangalore" },
-  ],
-  "Neurologist": [
-    { name: "NIMHANS", location: "Bangalore" },
-    { name: "Fortis Memorial Research Institute", location: "Gurgaon" },
-    { name: "Global Hospital", location: "Mumbai" },
-  ],
-  "Dermatologist": [
-    { name: "Kaya Skin Clinic", location: "Multiple Locations" },
-    { name: "Apollo Hospital - Dermatology", location: "Chennai" },
-    { name: "Fortis Hospital", location: "Mumbai" },
-  ],
-  "Orthopedic": [
-    { name: "Indian Spinal Injuries Centre", location: "New Delhi" },
-    { name: "Fortis Hospital - Orthopedics", location: "Mumbai" },
-    { name: "Apollo Hospital - Orthopedics", location: "Hyderabad" },
-  ],
-  "General Physician": [
-    { name: "Max Hospital", location: "New Delhi" },
-    { name: "Apollo Hospital", location: "Chennai" },
-    { name: "Fortis Hospital", location: "Bangalore" },
+    { name: "Dr. John Smith", experience: "20 years experience, MBBS, MD General Medicine", hospital: "Max Hospital", location: "New Delhi" },
+    { name: "Dr. Amanda White", experience: "15 years experience, MBBS, MD Internal Medicine", hospital: "Apollo Hospital", location: "Chennai" },
+    { name: "Dr. Suresh Reddy", experience: "12 years experience, MBBS, MD", hospital: "Fortis Hospital", location: "Bangalore" },
   ],
 };
 
 export const DoctorBooking = ({ finding, onBookingComplete }: DoctorBookingProps) => {
   const [selectedDoctor, setSelectedDoctor] = useState("");
-  const [hospitalName, setHospitalName] = useState("");
-  const [location, setLocation] = useState("");
   const [appointmentDate, setAppointmentDate] = useState<Date>();
   const [appointmentTime, setAppointmentTime] = useState("");
   const [isBooking, setIsBooking] = useState(false);
@@ -98,10 +68,10 @@ export const DoctorBooking = ({ finding, onBookingComplete }: DoctorBookingProps
 
   const specialty = (finding.doctorSpecialty || "General Physician") as keyof typeof DOCTORS_DATA;
   const doctors = DOCTORS_DATA[specialty] || DOCTORS_DATA["General Physician"];
-  const hospitals = HOSPITALS_DATA[specialty] || HOSPITALS_DATA["General Physician"];
+  const selectedDoctorData = doctors.find(d => d.name === selectedDoctor);
 
   const handleBooking = async () => {
-    if (!selectedDoctor || !hospitalName || !location || !appointmentDate || !appointmentTime) {
+    if (!selectedDoctor || !appointmentDate || !appointmentTime) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields",
@@ -110,9 +80,17 @@ export const DoctorBooking = ({ finding, onBookingComplete }: DoctorBookingProps
       return;
     }
 
+    if (!selectedDoctorData) {
+      toast({
+        title: "Error",
+        description: "Please select a valid doctor",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsBooking(true);
     try {
-      const selectedDoctorData = doctors.find(d => d.name === selectedDoctor);
       const appointmentDateTime = new Date(appointmentDate);
       const [hours, minutes] = appointmentTime.split(':');
       appointmentDateTime.setHours(parseInt(hours), parseInt(minutes));
@@ -122,9 +100,9 @@ export const DoctorBooking = ({ finding, onBookingComplete }: DoctorBookingProps
         .insert({
           doctor_name: selectedDoctor,
           doctor_specialty: finding.doctorSpecialty || "General Physician",
-          doctor_experience: selectedDoctorData?.experience || "Experienced Professional",
-          hospital_name: hospitalName,
-          location: location,
+          doctor_experience: selectedDoctorData.experience,
+          hospital_name: selectedDoctorData.hospital,
+          location: selectedDoctorData.location,
           appointment_date: appointmentDateTime.toISOString(),
           urgency: finding.urgency || "urgent",
           related_condition: finding.condition,
@@ -181,35 +159,17 @@ export const DoctorBooking = ({ finding, onBookingComplete }: DoctorBookingProps
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="hospital">Select Hospital</Label>
-          <Select 
-            value={hospitalName} 
-            onValueChange={(value) => {
-              setHospitalName(value);
-              const selectedHospital = hospitals.find(h => h.name === value);
-              if (selectedHospital) {
-                setLocation(selectedHospital.location);
-              }
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Choose a hospital" />
-            </SelectTrigger>
-            <SelectContent>
-              {hospitals.map((hospital) => (
-                <SelectItem key={hospital.name} value={hospital.name}>
-                  <div className="flex flex-col items-start">
-                    <span className="font-medium">{hospital.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {hospital.location}
-                    </span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {selectedDoctorData && (
+          <>
+            <div className="space-y-2">
+              <Label>Hospital</Label>
+              <div className="p-3 rounded-md border bg-muted/50">
+                <p className="font-medium">{selectedDoctorData.hospital}</p>
+                <p className="text-sm text-muted-foreground mt-1">{selectedDoctorData.location}</p>
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="space-y-2">
           <Label>Appointment Date</Label>
