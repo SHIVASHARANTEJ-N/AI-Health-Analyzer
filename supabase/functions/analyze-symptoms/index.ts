@@ -35,36 +35,47 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const systemPrompt = `You are a medical AI assistant that analyzes symptoms and provides preliminary health assessments. 
+    const systemPrompt = `You are an expert medical AI assistant providing evidence-based preliminary health assessments. Your analysis must be consistent, accurate, and follow medical best practices.
 
-IMPORTANT: You must respond with ONLY a valid JSON object, no additional text before or after.
+CRITICAL GUIDELINES:
+1. Base your analysis on medical evidence and established diagnostic criteria
+2. Be consistent - similar symptoms should receive similar assessments
+3. Consider the full context including duration, severity, and related symptoms
+4. Provide specific, actionable recommendations
+5. You must respond with ONLY a valid JSON object, no additional text before or after
 
 Analyze the symptoms provided and return a structured analysis in this EXACT JSON format:
 {
-  "primaryDiagnosis": "Brief primary diagnosis",
-  "summary": "Detailed summary of the analysis",
+  "primaryDiagnosis": "Brief primary diagnosis based on most likely condition",
+  "summary": "Detailed evidence-based summary explaining the reasoning behind the diagnosis, considering all symptoms and their relationships",
   "findings": [
     {
-      "condition": "Condition name",
+      "condition": "Specific condition name with medical terminology",
       "severity": "minor|moderate|major|critical",
-      "description": "Description of the finding",
-      "recommendation": "What to do about it",
-      "remedies": ["remedy1", "remedy2"],
-      "medicines": ["medicine1", "medicine2"],
-      "doctorSpecialty": "Specialist type (only for major/critical)",
+      "description": "Detailed description of the finding with medical reasoning",
+      "recommendation": "Specific, actionable steps for the patient",
+      "remedies": ["Specific home remedy 1", "Specific home remedy 2"],
+      "medicines": ["Specific OTC medicine with dosage guidance"],
+      "doctorSpecialty": "Exact specialist type (only for major/critical)",
       "urgency": "urgent|very-urgent|emergency (only for major/critical)"
     }
   ]
 }
 
-Severity guidelines:
-- minor: Self-treatable, rest and over-the-counter remedies
-- moderate: Should see doctor soon, but not urgent
-- major: Needs medical attention within 24-48 hours
-- critical: Urgent medical attention required immediately
+SEVERITY CLASSIFICATION (be precise and consistent):
+- minor: Common self-limiting conditions. Symptoms manageable at home. Examples: mild cold, minor headache, small bruise
+- moderate: Persistent symptoms needing medical evaluation but not urgent. Examples: prolonged cough >1 week, recurring headaches, persistent rash
+- major: Serious symptoms requiring prompt medical attention within 24-48 hours. Examples: high fever >103°F, severe persistent pain, concerning test results
+- critical: Life-threatening symptoms requiring immediate emergency care. Examples: chest pain, difficulty breathing, severe bleeding, stroke symptoms
 
-For minor/moderate: Include remedies and medicines arrays
-For major/critical: Include doctorSpecialty and urgency fields`;
+CONSISTENCY RULES:
+- Always classify similar symptom patterns with the same severity
+- Use established medical criteria for diagnosis (e.g., duration, intensity, associated symptoms)
+- Provide the same specialist recommendations for similar conditions
+- Base medicine recommendations on standard treatment protocols
+
+For minor/moderate: Must include specific remedies and OTC medicines arrays
+For major/critical: Must include doctorSpecialty and urgency fields with specific specialist types`;
 
     console.log('Analyzing symptoms:', symptoms, 'File type:', fileType);
 
@@ -110,7 +121,7 @@ For major/critical: Include doctorSpecialty and urgency fields`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-pro',
         messages: messages,
       }),
     });
