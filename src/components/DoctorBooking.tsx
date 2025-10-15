@@ -91,13 +91,26 @@ export const DoctorBooking = ({ finding, onBookingComplete }: DoctorBookingProps
 
     setIsBooking(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to book an appointment",
+          variant: "destructive",
+        });
+        setIsBooking(false);
+        return;
+      }
+
       const appointmentDateTime = new Date(appointmentDate);
       const [hours, minutes] = appointmentTime.split(':');
       appointmentDateTime.setHours(parseInt(hours), parseInt(minutes));
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('appointments')
         .insert({
+          user_id: user.id,
           doctor_name: selectedDoctor,
           doctor_specialty: finding.doctorSpecialty || "General Physician",
           doctor_experience: selectedDoctorData.experience,
