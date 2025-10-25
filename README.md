@@ -1,73 +1,114 @@
-# Welcome to your Lovable project
+AI Health Analyzer
 
-## Project info
+An AI-powered Health Report Analysis and Appointment System that analyzes medical reports, detects health conditions, and connects users with doctors automatically.
+Built using Python (Flask), HTML, CSS, and JavaScript.
 
-**URL**: https://lovable.dev/projects/712367c1-ca37-441f-b267-6560be0f029f
+ Project Overview:-
 
-## How can I edit this code?
+The AI Health Analyzer is a web-based platform that allows users to:
 
-There are several ways of editing your application.
+Upload health reports, CT scans, or medical images
+Extract data using OCR (Tesseract)
+Predict the stage of health (Healthy / Early Stage / Critical) using a trained AI/ML model
+Generate detailed AI PDF Health Reports
+Automatically recommend doctors and allow appointment booking for critical cases
+Manage reports and appointments via secure Login / Signup system
 
-**Use Lovable**
+ Key Features
+Feature	Description
+    AI Diagnosis	Uses trained ML models to predict the user’s health condition
+    File Uploads	Supports medical images, PDFs, and CSV health data
+    OCR Integration	Extracts key details from medical reports using Tesseract
+    AI Health Report	Generates a downloadable PDF summary
+    Doctor Booking	Suggests specialists and allows appointment scheduling
+    User Authentication	Login/Signup to track health reports & history
+    Database	SQLite used to store users, reports, and appointments
+    Tech Stack
+Layer	Technology :--
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/712367c1-ca37-441f-b267-6560be0f029f) and start prompting.
+Backend	Flask (Python)
+Frontend	HTML, CSS, JavaScript
+Database	SQLite
+AI/ML	scikit-learn (RandomForestClassifier)
+OCR	Tesseract
+PDF Generation	FPDF
 
-Changes made via Lovable will be committed automatically to this repo.
+ Project Structure:-
+health_ai/
+ ├── app.py
+ ├── /templates
+ │     ├── index.html
+ │     ├── login.html
+ │     ├── signup.html
+ │     ├── dashboard.html
+ │     └── appointment.html
+ ├── /static
+ │     ├── style.css
+ │     └── script.js
+ ├── /uploads
+ ├── /database/health.db
+ └── requirements.txt
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+How to Run Locally
+Step 1: Clone the repository
 git clone <YOUR_GIT_URL>
+cd health_ai
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Step 2: Install dependencies
+pip install -r requirements.txt
 
-# Step 3: Install the necessary dependencies.
-npm i
+Step 3: Run the Flask app
+python app.py
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Step 4: Open in browser
+http://127.0.0.1:5000
 
-**Edit a file directly in GitHub**
+Screenshots (Optional)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+(You can add screenshots of the UI here — upload your Flask website screenshots)
 
-**Use GitHub Codespaces**
+Future Enhancements
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Integration with real hospital APIs for live doctor appointments
 
-## What technologies are used for this project?
+Multi-language OCR support for regional medical reports
 
-This project is built with:
+AI Chatbot for instant health advice
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Cloud deployment for global access
 
-## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/712367c1-ca37-441f-b267-6560be0f029f) and click on Share -> Publish.
+Team Name: Team HealthVision
+Members: 
 
-## Can I connect a custom domain to my Lovable project?
+[A.V.S.NARAYANA]
 
-Yes, you can!
+[P.SRI NARAHARI]
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+[P.CHINMAINADTH]
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+[K.VARUN]
+
+[N. SHIVA SHARAN TEJ]
+
+Guide: [R. PAVAN KUMAR]
+Institution: [PACE INSTITUTE OF TECHNOLOGY AND SCIENCES]
+
+⚡ Deployment
+
+If you’re hosting with Lovable, simply click:
+Share → Publish → Confirm Deployment
+
+Or deploy manually on:
+
+Render
+
+Railway
+
+Vercel (via Flask adapter)
+
+Heroku
+
+📜 License
+
+This project is developed for educational purposes and is open for academic research and improvement.
