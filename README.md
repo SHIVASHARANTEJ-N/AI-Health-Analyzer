@@ -1,114 +1,81 @@
-AI Health Analyzer
+# AI Health Analyzer
 
-An AI-powered Health Report Analysis and Appointment System that analyzes medical reports, detects health conditions, and connects users with doctors automatically.
-Built using Python (Flask), HTML, CSS, and JavaScript.
+A web application that helps people understand their medical reports. A user signs in, uploads a report or scan, and gets a plain-language explanation along with a risk level and a suggested next step.
 
- Project Overview:-
+This is a student team project made for learning. It is not a medical device and does not replace a doctor's advice.
 
-The AI Health Analyzer is a web-based platform that allows users to:
+## Features
 
-Upload health reports, CT scans, or medical images
-Extract data using OCR (Tesseract)
-Predict the stage of health (Healthy / Early Stage / Critical) using a trained AI/ML model
-Generate detailed AI PDF Health Reports
-Automatically recommend doctors and allow appointment booking for critical cases
-Manage reports and appointments via secure Login / Signup system
+- **User accounts.** Each user signs in with their own account.
+- **Report upload.** Accepts medical reports and scans such as X-rays and CT scans.
+- **Plain-language explanation.** The AI explains what the report shows in simple words.
+- **Risk score.** Each report gets a score that falls into one of three levels:
 
- Key Features
-Feature	Description
-    AI Diagnosis	Uses trained ML models to predict the user’s health condition
-    File Uploads	Supports medical images, PDFs, and CSV health data
-    OCR Integration	Extracts key details from medical reports using Tesseract
-    AI Health Report	Generates a downloadable PDF summary
-    Doctor Booking	Suggests specialists and allows appointment scheduling
-    User Authentication	Login/Signup to track health reports & history
-    Database	SQLite used to store users, reports, and appointments
-    Tech Stack
-Layer	Technology :--
+  | Level | What the app suggests |
+  |---|---|
+  | Low | No serious concern. A routine check with a doctor is suggested. |
+  | Medium | Consult a doctor and follow their advice. |
+  | High | Treated as critical. The app shows nearby hospitals and doctors so the user can book an appointment. |
 
-Backend	Flask (Python)
-Frontend	HTML, CSS, JavaScript
-Database	SQLite
-AI/ML	scikit-learn (RandomForestClassifier)
-OCR	Tesseract
-PDF Generation	FPDF
+## Built with
 
- Project Structure:-
-health_ai/
- ├── app.py
- ├── /templates
- │     ├── index.html
- │     ├── login.html
- │     ├── signup.html
- │     ├── dashboard.html
- │     └── appointment.html
- ├── /static
- │     ├── style.css
- │     └── script.js
- ├── /uploads
- ├── /database/health.db
- └── requirements.txt
+- React 18 and TypeScript
+- Vite
+- Tailwind CSS with Radix UI components
+- Supabase (backend and storage)
+- React Router
+- TanStack Query
+- Recharts
+- React Hook Form and Zod
 
-How to Run Locally
-Step 1: Clone the repository
-git clone <YOUR_GIT_URL>
-cd health_ai
+## How to run
 
-Step 2: Install dependencies
-pip install -r requirements.txt
+1. Clone the repository:
 
-Step 3: Run the Flask app
-python app.py
+   ```
+   git clone https://github.com/SHIVASHARANTEJ-N/AI-Health-Analyzer.git
+   cd AI-Health-Analyzer
+   ```
 
-Step 4: Open in browser
-http://127.0.0.1:5000
+2. Install the dependencies:
 
-Screenshots (Optional)
+   ```
+   npm install
+   ```
 
-(You can add screenshots of the UI here — upload your Flask website screenshots)
+3. Create a file named `.env` in the project folder with your own Supabase project details:
 
-Future Enhancements
+   ```
+   VITE_SUPABASE_PROJECT_ID=your_project_id
+   VITE_SUPABASE_URL=https://your_project_id.supabase.co
+   VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+   ```
 
-Integration with real hospital APIs for live doctor appointments
+4. Start the development server:
 
-Multi-language OCR support for regional medical reports
+   ```
+   npm run dev
+   ```
 
-AI Chatbot for instant health advice
+5. Open the local address that Vite prints in the terminal.
 
-Cloud deployment for global access
+## Project structure
 
+| Path | Purpose |
+|---|---|
+| `src/` | React application code |
+| `public/` | Static files |
+| `supabase/` | Supabase configuration |
 
-Team Name: Team HealthVision
-Members: 
+## Disclaimer
 
-[A.V.S.NARAYANA]
+The explanations and scores come from an AI model and can be wrong. Always confirm results with a qualified doctor.
 
-[P.SRI NARAHARI]
+## Team
 
-[P.CHINMAINADTH]
+Built as a team project.
 
-[K.VARUN]
+Repository maintained by Shiva Sharan Tej Nallamalli
 
-[N. SHIVA SHARAN TEJ]
-
-Guide: [R. PAVAN KUMAR]
-Institution: [PACE INSTITUTE OF TECHNOLOGY AND SCIENCES]
-
-⚡ Deployment
-
-If you’re hosting with Lovable, simply click:
-Share → Publish → Confirm Deployment
-
-Or deploy manually on:
-
-Render
-
-Railway
-
-Vercel (via Flask adapter)
-
-Heroku
-
-📜 License
-
-This project is developed for educational purposes and is open for academic research and improvement.
+- GitHub: [SHIVASHARANTEJ-N](https://github.com/SHIVASHARANTEJ-N)
+- LinkedIn: [shiva-sharan-tej-nallamalli](https://www.linkedin.com/in/shiva-sharan-tej-nallamalli/)
